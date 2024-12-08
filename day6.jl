@@ -1,10 +1,10 @@
 using StatsBase ##needed for countmap function
 
+## read in data
 d = readlines("day6_input.txt")
-
 d = [collect(line) for line in d]
 
-
+## define bounds of the mapped area
 rows = length(d[:][1])
 columns = length(d[1][:])
 
@@ -14,8 +14,6 @@ direction = [-1,0]
 ## define rotation matrix
 rot_90 = [0 1
           -1 0]
-
-
 
 ## find starting location
 location = []
@@ -30,8 +28,9 @@ for r in 1:rows
     end
 end
 
-## safe locations
+## safe locations, initialize with starting location
 trajectory = Vector{Vector{Int}}()
+push!(trajectory, location)
 
 ## loop through locations until it reaches the end of the mapped area
 while location[1] != rows && location[2] != columns
@@ -44,10 +43,10 @@ while location[1] != rows && location[2] != columns
         location[2] + direction[2] > 0 &&
         d[location[1] + direction[1]][location[2] + direction[2]] != '#' 
 
-    ## update location with respective direction    
-    location =  location .+ direction
-    ## keep track of trajectory
-    push!(trajectory, location)
+        ## update location with respective direction    
+        location =  location .+ direction
+        ## keep track of trajectory
+        push!(trajectory, location)
 
     end
 

@@ -19,7 +19,7 @@ end
 # PART A
 
 ## recursive function to find a correct solution of equation
-function find_correct_solution(values, solution, focal_index = 1, focal_value = focal_values[1])
+function find_correct_solution_A(focal_values, solution, focal_index = 1, focal_value = focal_values[1])
 
     ## if done iterating check if solution is correct
     if focal_index == length(focal_values)
@@ -31,11 +31,48 @@ function find_correct_solution(values, solution, focal_index = 1, focal_value = 
     next_index = focal_index + 1
    
     ## Recursion with alternative + or * operator
-    return find_correct_solution(focal_values, solution, next_index, focal_value + focal_values[next_index]) ||
-           find_correct_solution(focal_values, solution, next_index, focal_value * focal_values[next_index])
+    return find_correct_solution_A(focal_values, solution, next_index, focal_value + focal_values[next_index]) ||
+    find_correct_solution_A(focal_values, solution, next_index, focal_value * focal_values[next_index])
 
 end
 
+
+# PART B
+
+
+## recursive function to find a correct solution of equation with added concatenation option
+function find_correct_solution_B(focal_values, solution, focal_index = 1, focal_value = focal_values[1], can_concatenate = true) ## initially set to true
+
+    ## if done iterating check if solution is correct
+    if focal_index == length(focal_values)
+
+        return focal_value == solution
+    end
+
+    ## update iteration
+    next_index = focal_index + 1
+   
+    ## when not concatenated yet give 3 options and update can_concatenate if used
+    if can_concatenate
+
+        can_concatenate = false
+
+        return find_correct_solution_B(focal_values, solution, next_index, focal_value + focal_values[next_index]) ||
+                find_correct_solution_B(focal_values, solution, next_index, focal_value * focal_values[next_index]) ||
+                find_correct_solution_B(focal_values, solution, next_index, parse(Int, string(focal_value)*string(focal_values[next_index])))
+
+    else
+
+        ## Recursion with alternative + or * operator
+        return find_correct_solution_B(focal_values, solution, next_index, focal_value + focal_values[next_index]) ||
+                find_correct_solution_B(focal_values, solution, next_index, focal_value * focal_values[next_index])
+
+    end
+end
+
+
+## switch between find_correct_solution_A and find_correct_solution_B accordingly
+########################################
 ## initialize results
 result = 0
 
@@ -44,14 +81,11 @@ for j in 1:length(solutions)
 
     focal_values = values[j]
     solution = solutions[j]
-
-   if find_correct_solution(focal_values, solution)
+      
+   if find_correct_solution_B(focal_values, solution)
 
         result += solutions[j]
    end
 end
 
 result
-
-
-# PART B

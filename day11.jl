@@ -14,6 +14,7 @@ d = Int[0, 4, 4979, 24, 4356119, 914, 85734, 698829]
     end
 
 
+## Slow function that can be used for part A but not part B
 
 function processing_stones(data, repeats)
 
@@ -64,66 +65,60 @@ end
 processing_stones(d, 25)
 
 
-
-
 ## Part B
 
-# function used for A to slow for 75 repeats change to do the repeats of each stone seperately and only keep track of in how many stones it transfers to
+## approach used in part A way too slow
+## instead keep track of stones by counting occurences of stones in a dictionary
 
 function processing_stones_B(data, repeats)
+    ## initilize dictionary that keeps track of total stone counts
+    stone_counts = Dict{Int, Int}()
+    ## fill dictionary with starting stones that each occur once
+    for stone in data
+        stone_counts[stone] = get(stone_counts, stone, 1)
+    end
 
-    stones = data
-    stone_count = 0
+    ## loop and keep track of stones through repeats
+    for i in 1:repeats
 
-        for i in 1:length(stones)
+        new_stones = Dict{Int, Int}()
+        
+        for (stone, count) in stone_counts
 
-                ## keep track of 1 stone and its division in more stones acrross repeats
-                stone = [stones[i]]
-                new_stones = Int[] 
+            if stone == 0
+                
+                new_stones[1] = get(new_stones, 1, 0) + count ## add stone with value 1 occuring same amount of times as 0 in prior iteration
+                
+            elseif is_even(count_digits(stone))
+                ## divide even digit stone in middle and safe new stones and count of these new stones    
+                mid = div(count_digits(stone),2)
+                stone_string = string(stone)
+                stone1 = parse(Int, stone_string[1:mid])
+                stone2 = parse(Int, stone_string[mid+1:end])
+                ## increment counts of the new stones
+                new_stones[stone1] = get(new_stones, stone1, 0) + count
+                new_stones[stone2] = get(new_stones, stone2, 0) + count
 
+            else
 
-                for j in 1:repeats
+                ## multiply by 2024 
+                new_stone = stone*2024
+                new_stones[new_stone] = get(new_stones, new_stone, 0) + count
 
-                    if j != 1
-                        stone = deepcopy(new_stones)
-                        new_stones = Int[] 
-
-                    end
-
-                    for s in 1:length(stone)
-
-                        if stone[s] == 0
-
-                            stone[s] = 1
-
-                        elseif is_even(count_digits(stone[s]))
-                            
-                        mid = div(count_digits(stone[s]),2)
-                        stone_string = string(stone[s])
-                        stone1 = parse(Int, stone_string[1:mid])
-                        stone2 = parse(Int, stone_string[mid+1:end])
-                        push!(new_stones, stone1)
-                        push!(new_stones, stone2)
-            
-
-
-                        else
-
-                            push!(new_stones, stone[s]*2024)
-
-                        end
-
-                     end
-
-                 end
-
-                 stone_count += length(new_stones)
-
+            end
+^
         end
 
-    return stone_count
+        ## update the stone count after completing a repeat/blink/iteration
+        stone_counts = new_stones
+
+    end
+    ## sum up stones in last iteration
+    total_stones = sum(values(stone_counts))
+
+    return total_stones
 
 end
 
 
-processing_stones_B(d, 25)
+processing_stones_B(d, 75)
